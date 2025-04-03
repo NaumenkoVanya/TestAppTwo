@@ -7,14 +7,46 @@
 
 import SwiftUI
 
+//@main
+//struct TestAppTwoApp: App {
+//
+//    var body: some Scene {
+//        WindowGroup {
+//            ContentView()
+//        }
+//    }
+//}
+
+// UserAuthApp.swift
+import SwiftUI
+
 @main
 struct TestAppTwoApp: App {
-    let persistenceController = PersistenceController.shared
-
+    @StateObject private var appState = AppState()
+    @State private var showSplash = true
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .environment(\.managedObjectContext, persistenceController.container.viewContext)
+            Group {
+                if showSplash {
+                    SplashScreen()
+                        .onAppear {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                withAnimation {
+                                    showSplash = false
+                                }
+                            }
+                        }
+                } else {
+                    if appState.isLoggedIn {
+                        MainScreen()
+                            .environmentObject(appState)
+                    } else {
+                        UsersListScreen()
+                            .environmentObject(appState)
+                    }
+                }
+            }
         }
     }
 }
